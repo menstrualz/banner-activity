@@ -80,6 +80,10 @@ class BannerCog(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
+        guild = self.bot.get_guild(GuildId.GUILD.value)
+        if guild.premium_tier < 2:
+            print("guild not have 2 premium tier, skipping banner update loop")
+            return
         now = datetime.datetime.now()
         minutes_to_next_hour = 60 - now.minute
         seconds_to_next_hour = minutes_to_next_hour * 60 - now.second
