@@ -14,6 +14,8 @@ class BannerCog(commands.Cog):
         self.user_activity = defaultdict(int)
         self.font_main = ImageFont.truetype("assets/MontserratAlternates-Bold.ttf", BannerConstants.FONT_MAIN_SIZE.value)
         self.font_name = ImageFont.truetype("assets/MontserratAlternates-SemiBold.ttf", BannerConstants.FONT_NAME_SIZE.value)
+        self.original_image = Image.open("assets/Banner.png")
+        self.working_image = self.original_image.copy()
 
     @commands.Cog.listener()
     async def on_message(self, message):
@@ -30,7 +32,7 @@ class BannerCog(commands.Cog):
             print("guild not have banner, skipping member and voice counts update")
             return
 
-        with Image.open(io.BytesIO(banner_data)) as img:
+        with self.working_image as img:
             draw = ImageDraw.Draw(img)
 
             member_total = len(guild.members)
@@ -43,14 +45,17 @@ class BannerCog(commands.Cog):
             img.save(output, format="PNG")
             output.seek(0)
             await guild.edit(banner=output.read())
-            print("updated member and voice counts")
+            next = datetime.datetime.now() + datetime.timedelta(minutes=BannerConstants.BANNER_UPDATE_INTERVAL.value)
+            print(f"updated member and voice counts, waiting for next update: {next}")
+
+        self.working_image = self.original_image.copy()
 
     @tasks.loop(minutes=BannerConstants.BANNER_UPDATE_INTERVAL.value)
     async def update_banner(self):
         await self.bot.wait_until_ready()
         guild = self.bot.get_guild(GuildId.GUILD.value)
 
-        with Image.open("assets/Banner.png") as img:
+        with self.working_image as img:
             draw = ImageDraw.Draw(img)
 
             if not self.user_activity:
@@ -77,6 +82,8 @@ class BannerCog(commands.Cog):
             self.user_activity.clear()
             next = datetime.datetime.now() + datetime.timedelta(minutes=BannerConstants.BANNER_UPDATE_INTERVAL.value)
             print(f"banner updated, activity cleared, waiting for next update: {next}")
+
+        self.working_image = self.original_image.copy()
 
     @commands.Cog.listener()
     async def on_ready(self):
