@@ -84,6 +84,7 @@ class BannerCog(commands.Cog):
         minutes_to_next_hour = 60 - now.minute
         seconds_to_next_hour = minutes_to_next_hour * 60 - now.second
 
+        print(f"waiting for {seconds_to_next_hour} seconds to start banner update loop")
         await asyncio.sleep(seconds_to_next_hour)
         self.update_banner.start()
         self.update_member_voice_counts.start()
