@@ -18,7 +18,7 @@ class BannerCog(commands.Cog):
         if not message.author.bot:
             self.user_activity[message.author.id] += 1
 
-    @tasks.loop(seconds=10)
+    @tasks.loop(hours=2)
     async def update_banner(self):
         print("Updating banner")
         await self.bot.wait_until_ready()
