@@ -101,7 +101,7 @@ class BannerCog(commands.Cog):
             output.seek(0)
             await guild.edit(banner=output.read())
             self.user_activity.clear()
-            next = datetime.now() + datetime.timedelta(minutes=1)
+            next = datetime.datetime.now() + datetime.timedelta(minutes=1)
             print(f"banner updated, activity cleared, waiting for next update: {next}")
 
         self.working_image = self.original_image.copy()
